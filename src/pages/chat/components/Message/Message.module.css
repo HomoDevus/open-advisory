@@ -1,0 +1,21 @@
+.message {
+  padding: 10px;
+  border-radius: 10px;
+  max-width: 500px;
+  color: #28282d;
+}
+.message .date {
+  color: #818990;
+  text-align: right;
+}
+.message .messageText {
+  margin-bottom: 0;
+}
+.message.received {
+  background-color: #d8f0fb;
+}
+.message.sent {
+  background-color: #f1fafe;
+}
+
+/*# sourceMappingURL=Message.module.css.map */

@@ -1,0 +1,13 @@
+.messagesContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 20px 0;
+  margin: 40px;
+}
+
+.chat {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}

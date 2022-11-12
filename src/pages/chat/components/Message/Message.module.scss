@@ -1,0 +1,25 @@
+@import "../../../../variables";
+
+.message {
+  padding: 10px;
+  border-radius: 10px;
+  max-width: 500px;
+  color: $foreground;
+
+  .date {
+    color: $foreground2;
+    text-align: right;
+  }
+
+  .messageText {
+    margin-bottom: 0;
+  }
+
+  &.received {
+    background-color: $accent-background2;
+  }
+
+  &.sent {
+    background-color: $accent-background;
+  }
+}

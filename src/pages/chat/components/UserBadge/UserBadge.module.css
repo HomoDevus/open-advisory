@@ -1,0 +1,10 @@
+.userBadge {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.userBadge .userName {
+  margin-bottom: 0;
+}
+
+/*# sourceMappingURL=UserBadge.module.css.map */
