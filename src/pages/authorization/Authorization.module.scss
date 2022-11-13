@@ -1,0 +1,14 @@
+@import "../../variables";
+
+.container {
+  width: 100vw;
+  height: 100vh;
+  background-color: $background;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .form {
+    min-width: 400px;
+  }
+}

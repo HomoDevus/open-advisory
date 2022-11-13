@@ -1,7 +1,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { sha256 } from 'js-sha256';
 
-const TOKEN = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEwMDExMiwibG9naW4iOiJmcmFuY2UiLCJyb2xlIjoiT1BFUkFUT1IiLCJpYXQiOjE2NjgyNDY0MDN9.eLTOwHI1Ln53ZhUDudjbxrbNiBtH2gkMw5Q3D-0HRJA'
-const DIALOG_ID = 28
+const URL = 'https://hack.invest-open.ru'
 
 function handleResponse(response) {
   if (!response.ok) {
@@ -10,17 +10,46 @@ function handleResponse(response) {
   return response.json()
 }
 
-export function sendMessageRequest(text) {
-  return fetch('https://hack.invest-open.ru/message/send', {
+export function authorizationRequest({ login, password }) {
+  return fetch(URL + '/auth', {
     method: 'POST',
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
-      authorization: TOKEN
+    },
+    body: JSON.stringify({
+      login,
+      password: sha256(password)
+    })
+  })
+    .then(handleResponse)
+}
+
+export function checkAuthorizationTokenRequest(token) {
+  return fetch(URL + '/jwt/verify', {
+    method: 'POST',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      jwt: token
+    })
+  })
+    .then(handleResponse)
+}
+
+export function sendMessageRequest(text, dialogId) {
+  return fetch(URL + '/message/send', {
+    method: 'POST',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      authorization: 'Bearer ' + localStorage.getItem('token')
     },
     body: JSON.stringify({
       message: {
-        dialogId: DIALOG_ID,
+        dialogId,
         text,
         messageType: 'TEXT'
       }
@@ -29,12 +58,13 @@ export function sendMessageRequest(text) {
     .then(handleResponse)
 }
 
-export function chatHistoryRequest(limit = undefined, timestamp) {
-  return fetch('https://hack.invest-open.ru/chat/history?' + new URLSearchParams({
-    dialogId: DIALOG_ID,
+export function chatHistoryRequest(dialogId, limit = undefined, timestamp) {
+  console.log(dialogId)
+  return fetch(URL + '/chat/history?' + new URLSearchParams({
+    dialogId,
     ...(limit && {limit}),
     ...(timestamp && {timestamp, older: 'FALSE'})
-  }), { headers: { authorization: TOKEN } })
+  }), { headers: { authorization: 'Bearer ' + localStorage.getItem('token') } })
     .then(handleResponse)
 }
 
