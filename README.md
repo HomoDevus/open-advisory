@@ -2,7 +2,7 @@
 
 ## Демо
 
-http://192.168.3.209:3000/
+https://tan-garrulous-check.glitch.me/
 
 ## Запустить приложения
 
