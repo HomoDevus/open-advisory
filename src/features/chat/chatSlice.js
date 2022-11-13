@@ -18,12 +18,8 @@ const initialState = {
 export const sendMessage = createAsyncThunk(
   'chat/sendMessage',
   async (text, { getState }) => {
-    // const timestamp = new Date().getTime()
     const state = getState()
-    const response = await sendMessageRequest(text, state.chat.dialogId);
-    // const history = await chatHistoryRequest(1, timestamp)
-
-    // return history.messages[0];
+    await sendMessageRequest(text, state.chat.dialogId);
   }
 )
 
@@ -45,9 +41,9 @@ export const authorize = createAsyncThunk(
       localStorage.setItem('token', response.jwtToken)
       return response
     } catch (error) {
-      error = await error.json()
-      if (error?.Error) {
-        error.Error.map(errorMessage => message.error(errorMessage.ErrorMessageText))
+      const parsedError = await error.json()
+      if (parsedError?.Error) {
+        parsedError.Error.map(errorMessage => message.error(errorMessage.ErrorMessageText))
       }
     }
   }
@@ -58,8 +54,7 @@ export const checkAuthorizationToken = createAsyncThunk(
   async () => {
     const token = localStorage.getItem('token')
     if (!token) return;
-    const response = await checkAuthorizationTokenRequest(token)
-    return response
+    return await checkAuthorizationTokenRequest(token)
   }
 )
 
@@ -72,10 +67,8 @@ export const chatSlice = createSlice({
       .addCase(sendMessage.pending, (state) => {
         state.status = 'sending'
       })
-      .addCase(sendMessage.fulfilled, (state, action) => {
+      .addCase(sendMessage.fulfilled, (state) => {
         state.status = 'idle'
-        // console.log(action.payload)
-        // state.messages.push(action.payload)
       })
       .addCase(getChatHistory.fulfilled, (state, action) => {
         state.messages = action.payload
@@ -85,7 +78,6 @@ export const chatSlice = createSlice({
         state.isAuthorized = true
       })
       .addCase(checkAuthorizationToken.fulfilled, (state, action) => {
-        console.log(action.payload)
         state.userId = action.payload.userId
         state.isAuthorized = true
       })

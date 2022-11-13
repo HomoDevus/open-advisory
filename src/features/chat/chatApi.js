@@ -59,58 +59,45 @@ export function sendMessageRequest(text, dialogId) {
 }
 
 export function chatHistoryRequest(dialogId, limit = undefined, timestamp) {
-  console.log(dialogId)
   return fetch(URL + '/chat/history?' + new URLSearchParams({
     dialogId,
-    ...(limit && {limit}),
-    ...(timestamp && {timestamp, older: 'FALSE'})
+    ...(limit && { limit }),
+    ...(timestamp && { timestamp, older: 'FALSE' })
   }), { headers: { authorization: 'Bearer ' + localStorage.getItem('token') } })
     .then(handleResponse)
 }
+
 
 export const messagesWs = createApi({
   reducerPath: 'messagesWs',
   baseQuery: fetchBaseQuery({ baseUrl: '/' }),
   endpoints: build => ({
     getMessages: build.query({
-      query: (channel) => `chat`,
+      queryFn: () => ({ data: { messages: [] } }),
       async onCacheEntryAdded(
         arg,
         { updateCachedData, cacheDataLoaded, cacheEntryRemoved }
       ) {
-        // create a websocket connection when the cache subscription starts
-        const ws = new WebSocket('wss://@hack.invest-open.ru/chat')
-        ws.onopen = function (e) {
-          ws.send(JSON.stringify({
-            'headers': {
-              'Authorization': 'Bearer TOKEN'
-            }
-          }));
-        };
+        const ws = new WebSocket('wss://@hack.invest-open.ru/chat/v2?' + new URLSearchParams({
+          jwtToken: localStorage.getItem('token')
+        }));
+
         try {
-          // wait for the initial query to resolve before proceeding
           await cacheDataLoaded
 
-          // when data is received from the socket connection to the server,
-          // if it is a message and for the appropriate channel,
-          // update our query result with the received message
           const listener = (event) => {
             const data = JSON.parse(event.data)
-            if (data.channel !== arg) return
 
             updateCachedData((draft) => {
-              draft.push(data)
+              draft.messages.push(data.messageData)
             })
           }
 
           ws.addEventListener('message', listener)
-        } catch {
-          // no-op in case `cacheEntryRemoved` resolves before `cacheDataLoaded`,
-          // in which case `cacheDataLoaded` will throw
+        } catch(e) {
+          console.error(e)
         }
-        // cacheEntryRemoved will resolve when the cache subscription is no longer active
         await cacheEntryRemoved
-        // perform cleanup steps once the `cacheEntryRemoved` promise resolves
         ws.close()
       },
     }),

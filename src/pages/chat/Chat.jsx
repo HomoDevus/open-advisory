@@ -10,10 +10,10 @@ import { useGetMessagesQuery } from '../../features/chat/chatApi';
 const Chat = () => {
   const dispatch = useDispatch()
   const messages = useSelector(selectMessages)
-
   const chatContainer = useRef(null);
+  const {data} = useGetMessagesQuery()
 
-  // const {data, isFetching, isLoading} = useGetMessagesQuery()
+  const allMessages = messages?.slice(0).reverse().concat(data?.messages || [])
 
   useEffect(() => {
     dispatch(getChatHistory())
@@ -24,15 +24,22 @@ const Chat = () => {
       window.scrollTo(0, chatContainer.current.scrollHeight);
 
     }
-  }, [messages])
+  }, [allMessages])
 
   return (
     <div className={styles.chat} ref={chatContainer}>
       <div className={styles.messagesContainer}>
-        {messages?.slice(0).reverse().map(message => <div key={message.messageId}><UserBadge
-          userName={message.sender === 100112 ? 'Брокер' : 'Клиент'} /><Message isReceived={message.sender !== 100112}
-                                                                                timestamp={message.timestamp}
-                                                                                text={message.text} /></div>)}
+        {allMessages.map(
+          message =>
+            <div key={message.messageId}>
+              <UserBadge userName={message.sender === 100112 ? 'Брокер' : 'Клиент'} />
+              <Message
+                isReceived={message.sender !== 100112}
+                timestamp={message.timestamp}
+                text={message.text}
+              />
+            </div>
+        )}
       </div>
       <MessageInput />
     </div>
